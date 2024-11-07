@@ -1,0 +1,50 @@
+version: '3.1'
+
+services:
+  mariadb:
+    container_name: maria_db
+    image: docker.io/bitnami/mariadb:11.5.2
+    restart: always
+    networks:
+      - redmine
+    volumes:
+      - ./**mariadb_repos_to-store_data**:/bitnami/mariadb:Z
+     # - ./**mariadb_repos_to-store_backup**:/backup:rw
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      ALLOW_EMPTY_PASSWORD: no
+      MARIADB_ROOT_PASSWORD: **MARIADB_ROOT_PASSWORD_CHANGE_ME**
+      MARIADB_USER: **MARIADB_USER_CHANGE_ME**
+      MARIADB_PASSWORD: **MARIADB_DB_PASSWORD_CHANGE_ME**
+      MARIADB_DATABASE: MARIADB_DATABASE
+  redmine:
+    container_name: redmine_app
+    image: docker.io/bitnami/redmine:5.1.4
+    restart: always
+    networks:
+       - redmine
+    ports:
+      - 80:3000
+    volumes:
+      - ./**redmine_repos_to-store_data**:/bitnami/redmine:rw
+    depends_on:
+      - mariadb
+    environment:
+      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+      ALLOW_EMPTY_PASSWORD: no
+      REDMINE_SKIP_BOOTSTRAP: yes
+      REDMINE_DATABASE_HOST: mariadb
+      REDMINE_DATABASE_PORT_NUMBER: 3306
+      REDMINE_DATABASE_USER: **MARIADB_USER_CHANGE_ME**
+      REDMINE_DATABASE_PASSWORD: **MARIADB_DB_PASSWORD_CHANGE_ME**
+      REDMINE_DATABASE_NAME: **MARIADB_DATABASE_CHANGE_ME"
+      REDMINE_USERNAME: **FIRSTADMIN_REDMINE_USERNAME**
+      REDMINE_PASSWORD: **FIRSTADMIN_REDMINE_PASSWORD_CHANGE_ME**
+      REDMINE_EMAIL: **FIRSTADMIN_REDMINE_EMAIL**
+
+volumes:
+  **mariadb_repos_to-store_data**:
+  **redmine_repos_to-store_data**:
+networks:
+  redmine:
+    driver: bridge
